@@ -68,9 +68,9 @@ int main()
         OutputFile << "House living: " << human[i].hmo.house_number << std::endl;
         OutputFile << "Flat living:  " << human[i].hmo.flat_number << std::endl;
         OutputFile << "Gender: " << human[i].gender << std::endl;
-        OutputFile << "Age: " << human[i].age << std::endl;
+        OutputFile << "Age: " << human[i].age << std::endl << std::endl;
     }
-    OutputFile << "Numer of people which age is after 18 and before 27 is " << k;
+    OutputFile << std::endl << "Numer of people which age is after 18 and before 27 is " << k << std::endl;
     for (int i = 0; i < 4; i++)
         if ((human[i].age >= 18) && (human[i].age <= 27) && (human[i].gender == "male"))
         {
@@ -79,7 +79,7 @@ int main()
             OutputFile << "House living: " << human[i].hmo.house_number << std::endl;
             OutputFile << "Flat living:  " << human[i].hmo.flat_number << std::endl;
             OutputFile << "Gender: " << human[i].gender << std::endl;
-            OutputFile << "Age: " << human[i].age << std::endl;
+            OutputFile << "Age: " << human[i].age << std::endl << std::endl;
         }
     OutputFile.close();
     return 0;
