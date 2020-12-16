@@ -101,7 +101,14 @@ int main()
 
     // read file
     std::ifstream input("Text.txt", std::ios::in);
-    input >> human;
+    std::string current;
+    std::ifstream input("Text.txt", std::ios::in);
+    while (!input.eof())
+    {
+        input >> current;
+        std::cout << current;
+    }
+    input.close();
 
 
     // reading binary
