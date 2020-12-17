@@ -20,9 +20,9 @@ struct citizen
     int age;
 };
 
-std::ostream& operator<< (std::ofstream& output, const std::vector<citizen>& live)
+std::ostream& operator<< (std::ostream& output, const std::vector<citizen>& live)
 {
-    for(citizen i : live)
+    for (const auto& i : live)
     {
         output << "Full name: " << i.snp << std::endl;
         output << "Street living: " << i.hmo.street << std::endl;
@@ -42,9 +42,10 @@ std::ostream& operator<< (std::ostream& output, citizen& live)
     output << "Flat living: " << live.hmo.flat_number << std::endl;
     output << "Gender: " << live.gender << std::endl;
     output << "Age: " << live.age << std::endl;
+    return output;
 }
 
-std::ifstream& operator>> (std::ifstream& input, const std::vector<citizen> live)
+std::ifstream& operator>> (std::ifstream& input, const std::vector<citizen>& live)
 {
     for (auto i : live)
     {
@@ -56,6 +57,23 @@ std::ifstream& operator>> (std::ifstream& input, const std::vector<citizen> live
         input >> i.age;
     }
     return input;
+}
+
+void output_file(std::ofstream& output, const std::vector<citizen>& human, int count)
+{
+    output << "People list: \n";
+    output << human;
+    output << std::endl << "Number of people which age is after 18 and before 27 is " << count << std::endl;
+}
+
+void input_file(std::ifstream& input, const std::vector<citizen>& human)
+{
+    input >> human;
+}
+
+void print(std::ostream& output, const std::vector<citizen>& live)
+{
+    output << live;
 }
 
 int main()
@@ -91,42 +109,21 @@ int main()
 
     // writing file
     std::ofstream OutputFile("Text.txt", std::ios::out);
-    OutputFile << "People list: \n";
-    OutputFile << human;
-    OutputFile << std::endl << "Number of people which age is after 18 and before 27 is " << k << std::endl;
+    output_file(OutputFile, human, k);
     for (int i = 0; i < 4; i++)
         if ((human[i].age >= 18) && (human[i].age <= 27) && (human[i].gender == "male"))
             OutputFile << human[i];
     OutputFile.close();
 
     // read file
-    std::ifstream input("Text.txt", std::ios::in);
     std::string current;
     std::ifstream input("Text.txt", std::ios::in);
-    while (!input.eof())
-    {
-        input >> current;
-        std::cout << current;
-    }
+    input_file(input, human);
     input.close();
 
-
-    // reading binary
-    std::ifstream bin_input("Binary.bin", std::ios::binary);
-    for (auto& i : human)
-    {
-        bin_input.read(reinterpret_cast<char*>(&i.snp), sizeof(i.snp));
-        bin_input.read(reinterpret_cast<char*>(&i.hmo.street), sizeof(i.hmo.street));
-        bin_input.read(reinterpret_cast<char*>(&i.hmo.house_number), sizeof(i.hmo.house_number));
-        bin_input.read(reinterpret_cast<char*>(&i.hmo.flat_number), sizeof(i.hmo.flat_number));
-        bin_input.read(reinterpret_cast<char*>(&i.gender), sizeof(i.gender));
-        bin_input.read(reinterpret_cast<char*>(&i.age), sizeof(i.age));
-    }
-    bin_input.close();
-
     // writing binary
-    std::ofstream bin_out("Binary.bin", std::ios::binary);
-    for (auto& i : human)
+    std::ofstream bin_out("Text.bin", std::ios::binary);
+    for (auto i : human)
     {
         bin_out.write(reinterpret_cast<char*>(&i.snp), sizeof(i.snp));
         bin_out.write(reinterpret_cast<char*>(&i.hmo.street), sizeof(i.hmo.street));
@@ -135,6 +132,21 @@ int main()
         bin_out.write(reinterpret_cast<char*>(&i.gender), sizeof(i.gender));
         bin_out.write(reinterpret_cast<char*>(&i.age), sizeof(i.age));
     }
+    bin_out.close();
+
+    // reading binary
+    std::ifstream bin_input("Text.bin", std::ios::binary);
+    for (auto& i : human)
+    {
+        std::getline(bin_input, i.snp);
+        std::getline(bin_input, i.hmo.street);
+        bin_input.read(reinterpret_cast<char*>(&i.hmo.house_number), sizeof(i.hmo.house_number));
+        bin_input.read(reinterpret_cast<char*>(&i.hmo.flat_number), sizeof(i.hmo.flat_number));
+        std::getline(bin_input, i.gender);
+        bin_input.read(reinterpret_cast<char*>(&i.age), sizeof(i.age));
+    }
+    bin_input.close();
+    print(std::cout, human);
 
     return 0;
 }
