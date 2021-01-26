@@ -20,7 +20,13 @@ struct citizen
     int age;
 };
 
-std::ostream& operator<< (std::ostream& output, const std::vector<citizen>& live)
+struct sizes
+{
+    int size_of_integer;
+    int size_of_string;
+};
+
+std::ostream& operator<< (std::ostream& output, const std::vector<citizen>& live) /*перегрузка оператора для вывода всех жителей*/
 {
     for (const auto& i : live)
     {
@@ -34,7 +40,7 @@ std::ostream& operator<< (std::ostream& output, const std::vector<citizen>& live
     return output;
 }
 
-std::ostream& operator<< (std::ostream& output, citizen& live)
+std::ostream& operator<< (std::ostream& output, citizen& live) /*перегрузка оператора для вывода одного жителя*/
 {
     output << "Full name: " << live.snp << std::endl;
     output << "Street living: " << live.hmo.street << std::endl;
@@ -45,18 +51,20 @@ std::ostream& operator<< (std::ostream& output, citizen& live)
     return output;
 }
 
-std::ifstream& operator>> (std::ifstream& input, const std::vector<citizen>& live)
+std::vector<std::string>& operator>> (std::ifstream& input, std::vector<std::string>& current)
 {
-    for (auto i : live)
+    if (!input.is_open())
+        std::cout << "File not found";
+    else
     {
-        std::getline(input, i.snp);
-        std::getline(input, i.hmo.street);
-        input >> i.hmo.house_number;
-        input >> i.hmo.flat_number;
-        std::getline(input, i.gender);
-        input >> i.age;
+        std::string result;
+        while (!input.eof()) /*пока не дойдет до конца файла*/
+        {
+            std::getline(input, result);
+            current.push_back(result);
+        }
     }
-    return input;
+    return current;
 }
 
 void output_file(std::ofstream& output, const std::vector<citizen>& human, int count)
@@ -66,14 +74,42 @@ void output_file(std::ofstream& output, const std::vector<citizen>& human, int c
     output << std::endl << "Number of people which age is after 18 and before 27 is " << count << std::endl;
 }
 
-void input_file(std::ifstream& input, const std::vector<citizen>& human)
+
+void bin_out(std::ofstream& output, std::vector<citizen>& human, int count)
 {
-    input >> human;
+    for (auto& i : human)
+    {
+        output.write((char*)&i.snp, sizeof(i.snp));
+        output.write((char*)&i.hmo.street, sizeof(i.hmo.street));
+        output.write((char*)&i.hmo.house_number, sizeof(i.hmo.house_number));
+        output.write((char*)&i.hmo.flat_number, sizeof(i.hmo.flat_number));
+        output.write((char*)&i.gender, sizeof(i.gender));
+        output.write((char*)&i.age, sizeof(i.age));
+    }
+    output.write((char*)&count, sizeof(count));
 }
 
-void print(std::ostream& output, const std::vector<citizen>& live)
+void binary_input(std::ifstream& input, std::vector<citizen>& current)
 {
-    output << live;
+    citizen element;
+    if (!input.is_open())
+        std::cout << "File not found";
+    else
+    {
+        std::string result;
+        while (!input.eof()) /*пока не дойдет до конца файла*/
+        {
+            input.read((char*)&element.snp, sizeof(element.snp));
+            input.read((char*)&element.hmo.street, sizeof(element.hmo.street));
+            input.read((char*)&element.hmo.house_number, sizeof(element.hmo.house_number));
+            input.read((char*)&element.hmo.flat_number, sizeof(element.hmo.flat_number));
+            input.read((char*)&element.gender, sizeof(element.gender));
+            input.read((char*)&element.age, sizeof(element.age));
+
+            current.push_back(element);
+        }
+        std::cout << current;
+    }
 }
 
 int main()
@@ -90,10 +126,9 @@ int main()
     human[1] = second;
     human[2] = third;
     human[3] = fourth;
-
     // sorting names
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4 - i - 1; j++)
+    for (int i = 0; i < human.size(); i++)
+        for (int j = 0; j < human.size() - i - 1; j++)
             if (human[j].snp > human[j + 1].snp)
             {
                 auto t = human[j];
@@ -103,7 +138,7 @@ int main()
 
     // finding number of people
     int k = 0;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < human.size(); i++)
         if ((human[i].age >= 18) && (human[i].age <= 27) && (human[i].gender == "male"))
             k++;
 
@@ -116,37 +151,29 @@ int main()
     OutputFile.close();
 
     // read file
-    std::string current;
-    std::ifstream input("Text.txt", std::ios::in);
-    input_file(input, human);
-    input.close();
+    std::vector<std::string> vec_for_input;
+    std::cout << "Reading text from file: \n";
+    std::cout << "=======================================\n";
+    std::ifstream InputFile("Text.txt", std::ios::in);
+    InputFile >> vec_for_input;            /*считаем каждую сторку в ячеку созданного вектора, затем выведем его на экран*/
+    for (auto i : vec_for_input)
+        std::cout << i << std::endl;
+    InputFile.close();
+    std::cout << "=======================================\n";
 
     // writing binary
-    std::ofstream bin_out("Text.bin", std::ios::binary);
-    for (auto i : human)
-    {
-        bin_out.write(reinterpret_cast<char*>(&i.snp), sizeof(i.snp));
-        bin_out.write(reinterpret_cast<char*>(&i.hmo.street), sizeof(i.hmo.street));
-        bin_out.write(reinterpret_cast<char*>(&i.hmo.house_number), sizeof(i.hmo.house_number));
-        bin_out.write(reinterpret_cast<char*>(&i.hmo.flat_number), sizeof(i.hmo.flat_number));
-        bin_out.write(reinterpret_cast<char*>(&i.gender), sizeof(i.gender));
-        bin_out.write(reinterpret_cast<char*>(&i.age), sizeof(i.age));
-    }
-    bin_out.close();
+    std::ofstream BinaryOutput("Binary.txt", std::ios::binary);
+    bin_out(BinaryOutput, human, k);
+    BinaryOutput.close();
 
     // reading binary
-    std::ifstream bin_input("Text.bin", std::ios::binary);
-    for (auto& i : human)
-    {
-        std::getline(bin_input, i.snp);
-        std::getline(bin_input, i.hmo.street);
-        bin_input.read(reinterpret_cast<char*>(&i.hmo.house_number), sizeof(i.hmo.house_number));
-        bin_input.read(reinterpret_cast<char*>(&i.hmo.flat_number), sizeof(i.hmo.flat_number));
-        std::getline(bin_input, i.gender);
-        bin_input.read(reinterpret_cast<char*>(&i.age), sizeof(i.age));
-    }
-    bin_input.close();
-    print(std::cout, human);
+    std::vector<citizen> current;
+    std::cout << "Reading text in binary mode from file: \n";
+    std::cout << "=======================================\n";
+    std::ifstream BinaryInput("Binary.txt", std::ios::binary);
+    binary_input(BinaryInput, current);
+    BinaryInput.close();
+    std::cout << "=======================================\n";
 
     return 0;
 }
