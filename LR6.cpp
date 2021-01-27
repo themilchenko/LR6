@@ -20,12 +20,6 @@ struct citizen
     int age;
 };
 
-struct sizes
-{
-    int size_of_integer;
-    int size_of_string;
-};
-
 std::ostream& operator<< (std::ostream& output, const std::vector<citizen>& live) /*перегрузка оператора для вывода всех жителей*/
 {
     for (const auto& i : live)
@@ -96,7 +90,6 @@ void binary_input(std::ifstream& input, std::vector<citizen>& current)
         std::cout << "File not found";
     else
     {
-        std::string result;
         while (!input.eof()) /*пока не дойдет до конца файла*/
         {
             input.read((char*)&element.snp, sizeof(element.snp));
@@ -108,7 +101,9 @@ void binary_input(std::ifstream& input, std::vector<citizen>& current)
 
             current.push_back(element);
         }
-        std::cout << current;
+
+        for (auto i : current)
+            std::cout << i;
     }
 }
 
