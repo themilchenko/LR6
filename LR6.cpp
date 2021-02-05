@@ -147,14 +147,14 @@ void bin_out(std::ofstream& output, std::vector<citizen>& human)
         for (auto& i : human)
         {
             int size1 = i.snp.size();
-            output.write(reinterpret_cast<char*>(&size1), sizeof(size1));
-            output.write(i.snp.c_str(), size1 * sizeof(char));
+            output.write(reinterpret_cast<char*>(&size1), sizeof(size1));              /*пишу в файл размер строки*/
+            output.write(i.snp.c_str(), size1 * sizeof(char));                         /*затем саму строку*/
 
             int size2 = i.hmo.street.size();
             output.write(reinterpret_cast<char*>(&size2), sizeof(size2));
             output.write(i.hmo.street.c_str(), size2 * sizeof(char));
 
-            output.write(reinterpret_cast<char*>(&i.hmo.house_number), sizeof(int));
+            output.write(reinterpret_cast<char*>(&i.hmo.house_number), sizeof(int));    /*просто пишу число, т.к. у типа инт константный размер*/
 
             output.write(reinterpret_cast<char*>(&i.hmo.flat_number), sizeof(int));
 
@@ -175,23 +175,23 @@ void binary_input(std::ifstream& input, std::vector<citizen>& current)
     {
 
         int citizen_num = 0;
-        input.read(reinterpret_cast<char*>(&citizen_num), sizeof(int));
+        input.read(reinterpret_cast<char*>(&citizen_num), sizeof(int));      /*считываю количество жителей*/
 
         for (int i = 0; i < citizen_num; i++)
         {
             citizen people;
 
             int num1 = 0;
-            input.read(reinterpret_cast<char*>(&num1), sizeof(int));
-            people.snp.resize(num1);
-            input.read(people.snp.data(), num1);
+            input.read(reinterpret_cast<char*>(&num1), sizeof(int));         /*читаю размер строки*/
+            people.snp.resize(num1);                                         /*изменяю размер строки*/
+            input.read(people.snp.data(), num1);                             /*считываю строку*/
 
             int num2 = 0;
             input.read(reinterpret_cast<char*>(&num2), sizeof(int));
             people.hmo.street.resize(num2);
             input.read(people.hmo.street.data(), num2);
 
-            input.read(reinterpret_cast<char*>(&people.hmo.house_number), sizeof(int));
+            input.read(reinterpret_cast<char*>(&people.hmo.house_number), sizeof(int));     /*считываю число*/
 
             input.read(reinterpret_cast<char*>(&people.hmo.flat_number), sizeof(int));
 
