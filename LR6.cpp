@@ -46,42 +46,42 @@ std::ostream& operator<< (std::ostream& output, citizen& live) /*перегру�
 
 bool to_vec(std::string& current, std::vector<citizen>& vec, int count)
 {
-    if (current.find("Fu") != -1)
+    if (current.find("Full name") != -1)
     {
         int pos = current.find(':');
         current.erase(current.begin(), current.begin() + pos + 2);
         vec[count].snp = current;
         return true;
     }
-    else if (current.find('S') != -1)
+    else if (current.find("Street living") != -1)
     {
         int pos = current.find(':');
         current.erase(current.begin(), current.begin() + pos + 2);
         vec[count].hmo.street = current;
         return true;
     }
-    else if (current.find('H') != -1)
+    else if (current.find("House living") != -1)
     {
         int pos = current.find(':');
         current.erase(current.begin(), current.begin() + pos + 2);
         vec[count].hmo.house_number = std::stoi(current);
         return true;
     }
-    else if (current.find("Fl") != -1)
+    else if (current.find("Flat living") != -1)
     {
         int pos = current.find(':');
         current.erase(current.begin(), current.begin() + pos + 2);
         vec[count].hmo.flat_number = std::stoi(current);
         return true;
     }
-    else if (current.find('G') != -1)
+    else if (current.find("Gender") != -1)
     {
         int pos = current.find(':');
         current.erase(current.begin(), current.begin() + pos + 2);
         vec[count].gender = current;
         return true;
     }
-    else if (current.find('A') != -1)
+    else if (current.find("Age") != -1)
     {
         int pos = current.find(':');
         current.erase(current.begin(), current.begin() + pos + 2);
